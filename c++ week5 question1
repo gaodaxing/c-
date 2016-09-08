@@ -1,0 +1,69 @@
+#include <iostream>
+#include <cstring>
+#include <cstdlib>
+using namespace std;
+class MyString{
+    private:
+    char* str;
+    double length;
+    
+    public:
+    MyString(){
+        
+    }
+    
+    MyString(string s){
+        str=new char[s.length()+1];
+        strcpy(str,s.c_str());
+        length=s.length();
+    }
+    
+    MyString(const MyString& s){
+        strcpy(str,s.str)
+        length=s.length;
+    }
+    
+    char operator[](int i){
+        return *(str+i);
+    }
+    
+    MyString operator=(MyString str2){
+        strcpy(str,str2.str);
+        length=str2.length;
+        return *this;
+    }
+    
+    MyString operator=(string s){
+        str=new char[s.length()+1];
+        strcpy(str,s.c_str())
+        length=s.length();
+        return *this;
+    }
+    
+    MyString operator+(MyString str2){
+        MyString sum;
+        sum.str=new char[length+str2.length+1];
+        strcpy(sum.str,str);
+        strcat(sum.str,str2.str);
+        return sum;
+    }
+    
+    MyString operator+(string s){
+        MyString sum;
+        sum.str=new char[length+s.length()+1];
+        strcpy(sum.str,str);
+        strcat(sum.str,s.c_str());
+        return sum;
+    }
+    
+    string operator()(int i,int j){
+        string s;
+        s=string(str+i);
+        return s;
+    }
+    
+    ostream& operator<<(ostream& os,MyString str){
+        os<<str.str;
+        return os;
+    }
+};
