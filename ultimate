@@ -1,0 +1,236 @@
+#include<iostream>
+#include<cstring>
+#include<stdio.h>
+#include<queue>
+using namespace std;
+string weapons[3]={"sword","bomb","arrow"};
+class city;
+class headquarter;
+class Warrior;
+
+///////////////////////////////////////////////
+/////////////////  Weapon  ///////////////////
+///////////////////////////////////////////////
+
+class weapon{
+protected:
+    int power;
+    string name;
+};
+
+class arrow:public weapon{
+private:
+    int count=3;
+    string name="arrow";
+public:
+    void shoot(Warrior &w){
+        count--;
+        if(count==0)delete this;
+    }
+};
+
+class bomb:public weapon{
+public:
+    void explode(Warrior &w);
+};
+
+class sword:public weapon{
+public:
+    void setpower(int i){
+        weapon::power=i;
+    }
+    void attack(Warrior &w);
+};
+
+///////////////////////////////////////////////
+/////////////////  Warrior  ///////////////////
+///////////////////////////////////////////////
+
+class Warrior{
+private:
+    headquarter *h;//red or blue
+    bool attacked=false;
+    int life;//life
+    int attack;//strength of attack
+    string name;//name
+    int count=0;//number of warriors
+    float morale;//morale
+    bool win=false;
+    city *c;//city marched
+    
+public:
+    Warrior(){}
+    Warrior(string n):name(n){}
+    ~Warrior(){}
+    void setlife(int l){
+        life=l;
+        if(life<=0)delete this;
+    }
+    string getname(){//get name
+        return name;
+    }
+    int getlife(){
+        return life;
+    }
+    int getcount(){
+        return count;
+    }
+    void setcount(){
+        count++;
+    }
+    
+    void setmorale(int m){
+        morale=m;
+    }
+    int getmorale(){
+        return morale;
+    }
+    void Attack(Warrior &w){
+        int ll;
+        ll=w.getlife()-attack;
+        w.setlife(ll);
+        if(ll>0)w.setattacked(true);
+    }
+    void fightback(Warrior &w){
+        if(attacked)w.setlife(w.getlife()-attack);
+    }
+    void setattacked(bool a){
+        attacked=a;
+    }
+    void setwin(bool w){
+        win=w;
+    }
+    void award(int a){
+        life=life+a;
+    }
+
+};
+
+void sword::attack(Warrior &w){
+    w.setlife(w.getlife()-weapon::power);
+    weapon::power=0.2*weapon::power;
+}
+
+void bomb::explode(Warrior &w){
+    w.setlife(0);
+}
+
+class city{
+    
+private:
+    int number;
+    Warrior *w;
+    int flag=0;
+    bool fight=false;
+    
+public:
+    void setflag(int i){
+        flag=i;
+    }
+    int getflag(){
+        return flag;
+    }
+    void setnum(int j){
+        number=j;
+    }
+    int getnum(){
+        return number;
+    }
+};
+
+class headquarter{
+    
+private:
+    int M;//total elements
+    string side;//side of blue or red
+    int total=0;//total warriors made
+    bool taken=false;//whether is taken
+    
+public:
+    headquarter(string s):side(s){}
+    int getM(){
+        return M;
+    }
+    void setM(int m){
+        M=m;
+    }
+    int create_warrior(Warrior &w){
+        if(M>=w.getlife()){
+            total++;
+            w.setcount();
+            cout<<side<<" "<<w.getname()<<" "<<total<<" born with strength "<<w.getlife()<<","<<w.getcount()<<" "<<w.getname()<<" in "<<side<<" headquarter"<<endl;
+            return M-w.getlife();
+        }
+        else return -1;
+    }
+};
+
+
+int main() {
+    int d,n,i,l,w;
+    int Case;
+    int c=0;
+    int M;
+    cin>>Case;
+    
+    while(c<Case){
+        
+        cin>>M;
+        cin>>d>>n>>i>>l>>w;
+        cout<<"Case: "<<c+1<<endl;
+        int life1[5]={i,l,w,n,d};
+        int life2[5]={l,d,n,i,w};
+        string warrior1[5]={"iceman","lion","wolf","ninja","dragon"};
+        string warrior2[5]={"lion","dragon","ninja","iceman","wolf"};
+        
+        
+        queue<Warrior> w1;
+        queue<Warrior> w2;
+        
+        for(int i=0;i<5;i++){
+            Warrior war1(warrior1[i]);
+            war1.setlife(life1[i]);
+            w1.push(war1);
+            Warrior war2(warrior2[i]);
+            war2.setlife(life2[i]);
+            w2.push(war2);
+        }
+        
+        headquarter h1("red");
+        headquarter h2("blue");
+        h1.setM(M);
+        h2.setM(M);
+        int time=0;
+        int stop1=0;
+        int stop2=0;
+        while(true){
+            if(stop1==0)printf("%03d ",time);
+            int check1=-1;
+            while((check1<0)&(!w1.empty())){
+                check1=h1.create_warrior(w1.front());
+                if(check1<0){w1.pop();continue;}
+                else {h1.setM(check1);w1.push(w1.front());w1.pop();}
+            }
+            if(check1<=0&stop1==0){cout<<"red headquarter stops making warriors"<<endl;
+                stop1=1;}
+            if(stop2==0)printf("%03d ",time);
+            int check2=-1;
+            while((check2<0)&(!w2.empty())){
+                check2=h2.create_warrior(w2.front());
+                if(check2<0){w2.pop();continue;}
+                else {h2.setM(check2);w2.push(w2.front());w2.pop();}
+            }
+            if(check2<=0&stop2==0){cout<<"blue headquarter stops making warriors"<<endl;
+                stop2=1;}
+            
+            time++;
+            if(stop1==1&stop2==1)break;
+            
+        }
+        
+        
+        c++;
+        
+    }
+    return 0;
+}
