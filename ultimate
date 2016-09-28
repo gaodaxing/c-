@@ -6,74 +6,91 @@
 #include<queue>
 #include<vector>
 using namespace std;
-class city;
+
 /////////////////////////////////////////////////////////
 ///////////////// headquarter ///////////////////////////
 /////////////////////////////////////////////////////////
-
+class city;
 class headquarter {
-
+    
 private:
-	int M;//total elements
-	string side;//side of blue or red
-	int total = 0;//total warriors made
-	int cd = 0, ci = 0, cl = 0, cn = 0, cw = 0;
-	bool taken = false;//whether is taken
-
+    int M;//total elements
+    string side;//side of blue or red
+    int reached=0;
+    int total = 0;//total warriors made
+    int cd = 0, ci = 0, cl = 0, cn = 0, cw = 0;
+    bool taken = false;//whether is taken
+    
 public:
-	headquarter(string s, int m) :side(s), M(m) {}
-	int getM() {
-		return M;
-	}
-	void setM(int m) {
-		M = m;
-	}
-	bool check_warrior(int l) {
-		if (M >= l)return true;
-		else return false;
-	}
-
-	string getside() {
-		return side;
-	}
-	void add_dragon() {
-		cd++;
-		total++;
-	}
-	void add_ninja() {
-		cn++;
-		total++;
-	}
-	void add_lion() {
-		cl++;
-		total++;
-	}
-	void add_wolf() {
-		cw++;
-		total++;
-	}
-	void add_iceman() {
-		ci++;
-		total++;
-	}
-	int gettotal() {
-		return total;
-	}
-	int get_dragon() {
-		return cd;
-	}
-	int get_iceman() {
-		return ci;
-	}
-	int get_wolf() {
-		return cw;
-	}
-	int get_lion() {
-		return cl;
-	}
-	int get_ninja() {
-		return cn;
-	}
+    headquarter(string s, int m) :side(s), M(m) {}
+    int getM() {
+        return M;
+    }
+    void setM(int m) {
+        M = m;
+    }
+    void add_element(int e){
+        M=M+e;
+    }
+    bool check_warrior(int l) {
+        if (M >= l)return true;
+        else return false;
+    }
+    void set_reached(){
+        reached++;
+    }
+    int get_reached(){
+        return reached;
+    }
+    
+    string getside() {
+        return side;
+    }
+    void add_dragon() {
+        cd++;
+        total++;
+    }
+    void add_ninja() {
+        cn++;
+        total++;
+    }
+    void add_lion() {
+        cl++;
+        total++;
+    }
+    void add_wolf() {
+        cw++;
+        total++;
+    }
+    void add_iceman() {
+        ci++;
+        total++;
+    }
+    int gettotal() {
+        return total;
+    }
+    int get_dragon() {
+        return cd;
+    }
+    int get_iceman() {
+        return ci;
+    }
+    int get_wolf() {
+        return cw;
+    }
+    int get_lion() {
+        return cl;
+    }
+    int get_ninja() {
+        return cn;
+    }
+    void get_taken(){
+        taken=true;
+        cout<<side<<" is taken"<<endl;
+    }
+    bool is_taken(){
+        return taken;
+    }
 };
 
 class Warrior;
@@ -84,54 +101,67 @@ class Warrior;
 
 class weapon {
 protected:
-	int power;
-	string name;
-	bool lost = false;
+    int power;
+    string name;
+    bool lost = false;
 public:
-	void loseweapon() {
-
-	}
-	string getname() {
-		return name;
-	}
+    void loseweapon() {
+        
+    }
+    string getname() {
+        return name;
+    }
+    bool get_lost(){
+        return lost;
+    }
+    int get_power(){
+        return power;
+    }
+    virtual void report()=0;
 };
 
 class arrow :public weapon {
 private:
-	int count = 3;
-	static int R;
+    int count = 3;
+    static int R;
 public:
-	arrow() {
-		name = "arrow";
-		power = R;
-	}
-	void shoot(Warrior &w) {
-		count--;
-		if (count == 0)lost = true;
-	}
-	static void setR(int r) {
-		R = r;
-	}
+    arrow() {
+        name = "arrow";
+        power = R;
+    }
+    int shoot(Warrior *w) ;
+    static void setR(int r) {
+        R = r;
+    }
+    void report(){
+        cout<<"arrow("<<count<<")";
+           }
 };
 int arrow::R = 0;
 
 class bomb :public weapon {
 public:
-	bomb() { name = "bomb"; }
-	void explode(Warrior &w1, Warrior &w2);
+    bomb() { name = "bomb"; }
+    void explode(Warrior *w1, Warrior *w2);
+    void report(){
+        cout<<"bomb";
+    }
 };
 
 class sword :public weapon {
 public:
-	sword(int p) {//warrior strength 20%
-		power = p*0.2;
-		name = "sword";
-	}
-
-	void blunt() {
-		power = 0.8*power;
-		if (power == 0)lost = true;
-	}
+    sword(int p) {//warrior strength 20%
+        power = p*0.2;
+        name = "sword";
+    }
+    
+    void blunt() {
+        power = 0.8*power;
+        if (power == 0)lost = true;
+    }
+    void report(){
+        cout<<"sword("<<power<<")";
+    }
 };
 
 ///////////////////////////////////////////////
@@ -140,425 +170,828 @@ public:
 
 class Warrior {
 protected:
-	headquarter *h;//red or blue
-	bool attacked = false;
-	bool dead = false;
-	int life;//life
-	int strength;//strength of attack
-	string name;//name
-	double morale;//morale
-	bool win = false;
-	city *c;//city marched
-	vector<weapon*> wp;
-	
+    headquarter *h;//red or blue
+    int num;
+    bool attacked = false;
+    bool dead = false;
+    bool killed=false;
+    int life;//life
+    int strength;//strength of attack
+    int force;//strength+power of weapon
+    string name;//name
+    double morale;//morale
+    bool win = false;
+    city *c;//city marched
+    bool not_marched;
+    bool reached=false;
+    vector<weapon*> wp;
+    int city_num;
+    
 public:
-	Warrior() {}
-	Warrior(string n, int l, int s, headquarter* H) :name(n), life(l), strength(s) ,h(H){ morale = 0; }
-	~Warrior() {}
-	void setcity(city *C) {
-		c = C;
-	}
-	void changelife(int ch) {
-		life = life + ch;
-		if (life <= 0)dead = true;
-	}
-	string getname() {//get name
-		return name;
-	}
-	int getlife() {
-		return life;
-	}
-	void setlife(int ll) {
-		life = ll;
-		if (life <= 0)dead = true;
-	}
-
-	virtual void warrior_print() = 0;
-	
-	void Attack(Warrior &w) {
-		int ll;
-		ll = w.getlife() - strength;
-		w.changelife(-strength);
-		if (ll>0)w.setattacked(true);
-	}
-	void fightback(Warrior &w) {
-		if (attacked)w.changelife(-strength);
-		setattacked(false);
-	}
-	void setattacked(bool a) {
-		attacked = a;
-	}
-	void setwin(bool w) {
-		win = w;
-	}
-	void award(int a) {
-		life = life + a;
-	}
-	virtual void getweapon(int wpn) {
-
-	}
-	virtual void getweapon(int wpn1, int wpn2) {
-
-	}
-	void setmorale(double m) {
-		morale = m;
-	}
-
-	double getmorale() {
-		return morale;
-	}
-
+    Warrior() {}
+    Warrior(string n, int l, int s, headquarter* H) :name(n), life(l), strength(s) ,h(H){ morale = 0; not_marched=true;num=h->gettotal();force=strength;}
+    ~Warrior() {}
+    void setcity(city *C) {
+        c = C;
+    }
+    void march(vector<city*> cities);
+    void start_march(vector<city*> cities);
+    void changelife(int ch) {
+        life = life + ch;
+        if (life <= 0)dead = true;
+    }
+    string getname() {//get name
+        return name;
+    }
+    int getlife() {
+        return life;
+    }
+    void setlife(int ll) {
+        life = ll;
+        if (life <= 0)dead = true;
+    }
+    bool get_dead(){
+        return dead;
+    }
+    
+    int get_strength(){
+        return strength;
+    }
+    virtual void warrior_print() = 0;
+    bool not_march(){
+        return not_marched;
+    }
+    void set_march(){
+        not_marched=false;
+    }
+    bool reach_opp(){
+        return reached;
+    }
+    void set_reached(bool r){
+        reached=r;
+    }
+    int get_num(){
+        return num;
+    }
+    int get_city_num(){
+        return city_num;
+    }
+    virtual bool check_weapon(string s){
+        return false;
+    }
+    bool check_any_weapon(){
+        if(wp.size()>0)return true;
+        return false;
+    }
+    virtual int shoot_arrow(Warrior *w){
+        return 0;
+    }
+    bool check_kill(Warrior *w){
+        if(force>=(w->getlife())){
+            return true;
+        }
+        return false;
+    }
+    void set_killed(){
+        killed=true;
+    }
+    bool get_killed(){
+        return killed;
+    }
+    void Attack(Warrior *w) {
+        int ll;
+        ll = w->getlife() - force;
+        w->changelife(-force);
+        if (ll>0)w->setattacked(true);
+        else w->set_killed();
+    }
+    void fightback(Warrior *w) {
+        if (attacked)w->changelife(strength*0.5-force);
+    }
+    void setattacked(bool a) {
+        attacked = a;
+    }
+    bool get_attacked(){
+        return attacked;
+    }
+    void setwin(bool w) {
+        win = w;
+    }
+    void award(int a) {
+        life = life + a;
+    }
+    virtual void getweapon(int wpn) {
+        
+    }
+    virtual void getweapon(int wpn1, int wpn2) {
+        
+    }
+    void lostweapon(){
+        for(vector<weapon*>::iterator it=wp.begin();it<wp.end();it++)
+        {
+            if((*it)->get_lost())wp.erase(it);
+        }
+    }
+    virtual void report_weapon(){
+        
+    }
+    void setmorale(double m) {
+        morale = m;
+    }
+    
+    double getmorale() {
+        return morale;
+    }
+    
 };
 
 
 class dragon :public Warrior {
-
+    
 public:
-	dragon(int l, int s, headquarter* H) :Warrior("dragon", l, s, H) {
-		h->add_dragon();
-		morale = (double)(h->getM())/ l-1;
-		getweapon( h->gettotal()% 3);		
-	}
-	
-	void add_morale(double m) {
-		morale = morale + m;
-	}
-	void getweapon(int wpn) {
-		weapon *wpp;
-		if (wpn == 0)wpp = new sword(strength);
-		if (wpn == 1)wpp = new bomb();
-		if (wpn == 2)wpp = new arrow();
-		wp.push_back(wpp);
-	}
-	
-	void warrior_print() {
-		cout << h->getside() << " " << name << " " << h->gettotal() << " born with strength " << life << "," << h->get_dragon() << " " << name << " in " << h->getside() << " headquarter" << endl;
-		cout << "It has a " << (wp.at(0))->getname() << ",and its morale is ";
-		printf("%0.2f\n", morale);
-	}
+    dragon(int l, int s, headquarter* H) :Warrior("dragon", l, s, H) {
+        h->add_dragon();
+        morale = (double)(h->getM())/ l-1;
+        getweapon( h->gettotal()% 3);
+    }
+    
+    void add_morale(double m) {
+        morale = morale + m;
+    }
+    void getweapon(int wpn) {
+        weapon *wpp;
+        if (wpn == 0){wpp = new sword(strength);force=strength+wpp->get_power();}
+        if (wpn == 1)wpp = new bomb();
+        if (wpn == 2)wpp = new arrow();
+        wp.push_back(wpp);
+    }
+    bool check_weapon(string s){
+        if(wp.size()==1){
+        weapon *wpp=wp.at(0);
+        if(wpp->getname()==s)
+            return true;
+        }
+        return false;
+    }
+    
+    int shoot_arrow(Warrior *w){
+        arrow* r=(arrow*) wp.at(0);
+        int left=r->shoot(w);
+        return left;
+    }
 
+    void warrior_print() {
+        cout << h->getside() << " " << name << " " << h->gettotal() << " born with strength " << life << "," << h->get_dragon() << " " << name << " in " << h->getside() << " headquarter" << endl;
+        cout << "It has a " << (wp.at(0))->getname() << ",and it's morale is ";
+        printf("%0.2f\n", morale);
+    }
+    void report_weapon(){
+        if(wp.size()>0){
+            cout<<h->getside()<<" dragon "<<num<<" has ";
+            wp.at(0)->report();
+            cout<<endl;
+        }
+        else cout<<h->getside()<<" dragon "<<num<<" has no weapon"<<endl;
+    }
+    
 };
 
 
 class ninja :public Warrior {
-
+    
 public:
-	ninja(int l, int s, headquarter* H) :Warrior("najia", l, s, H) {
-		h->add_ninja();
-		getweapon(h->gettotal() % 3, (h->gettotal() +1) % 3);
-		
-	}
-	
-	void fightback(Warrior &w) {//najia no fightback
-	}
-	void getweapon(int wpn) {
-		weapon *wpp;
-		if (wpn == 0)wpp = new sword(strength);
-		if (wpn == 1)wpp = new bomb();
-		if (wpn == 2)wpp = new arrow();
-		wp.push_back(wpp);
-	}
-	void getweapon(int wpn1, int wpn2) {
-		getweapon(wpn1);
-		getweapon(wpn2);
-	}
-	
-	void warrior_print() {
-		cout << h->getside() << " " << name << " " << h->gettotal() << " born with strength " << life << "," << h->get_ninja() << " " << name << " in " << h->getside() << " headquarter" << endl;
-		cout << "It has a " << (wp.at(0))->getname() << ",and a " << (wp.at(1))->getname() << endl;
-	}
+    ninja(int l, int s, headquarter* H) :Warrior("ninja", l, s, H) {
+        h->add_ninja();
+        getweapon(h->gettotal() % 3, (h->gettotal() +1) % 3);
+        
+    }
+    
+    void fightback(Warrior &w) {//najia no fightback
+    }
+    void getweapon(int wpn) {
+        weapon *wpp;
+        if (wpn == 0)wpp = new sword(strength);
+        if (wpn == 1)wpp = new bomb();
+        if (wpn == 2)wpp = new arrow();
+        wp.push_back(wpp);
+    }
+    void getweapon(int wpn1, int wpn2) {
+        getweapon(wpn1);
+        getweapon(wpn2);
+    }
+    bool check_weapon(string s){
+        for(int i=0;i<wp.size();i++){
+            if(wp.at(i)->getname()==s)
+                return true;
+        }
+        
+         return false;
+    }
+
+    
+    void warrior_print() {
+        cout << h->getside() << " " << name << " " << h->gettotal() << " born with strength " << life << "," << h->get_ninja() << " " << name << " in " << h->getside() << " headquarter" << endl;
+        cout << "It has a " << (wp.at(0))->getname() << " and a " << (wp.at(1))->getname() << endl;
+    }
+    void report_weapon(){
+        if(wp.size()>0){
+            cout<<h->getside()<<" ninja "<<num<<" has ";
+            wp.at(0)->report();
+            if(wp.size()>1){cout<<", ";wp.at(1)->report();}
+            cout<<endl;
+        }
+        else cout<<h->getside()<<" ninja "<<num<<" has no weapon"<<endl;
+    }
+
 };
 
 
 class wolf :public Warrior {
 public:
-	wolf(int l, int s, headquarter* H) : Warrior("wolf", l, s, H) {
-		h->add_wolf();
-	}
-	
-	void warrior_print() {
-		cout << h->getside() << " " << name << " " << h->gettotal() << " born with strength " << life << "," << h->get_wolf() << " " << name << " in " << h->getside() << " headquarter" << endl;
-	}
+    wolf(int l, int s, headquarter* H) : Warrior("wolf", l, s, H) {
+        h->add_wolf();
+    }
+    bool check_weapon(string s){
+        for(int i=0;i<wp.size();i++){
+            if(wp.at(i)->getname()==s)
+                return true;
+        }
+        
+        return false;
+    }
+
+    
+    void warrior_print() {
+        cout << h->getside() << " " << name << " " << h->gettotal() << " born with strength " << life << "," << h->get_wolf() << " " << name << " in " << h->getside() << " headquarter" << endl;
+    }
+    void report_weapon(){
+        if(wp.size()>0){
+            cout<<h->getside()<<" wolf "<<num<<" has ";
+            wp.at(0)->report();
+            if(wp.size()>1){cout<<", ";wp.at(1)->report();}
+            if(wp.size()>2){cout<<", ";wp.at(2)->report();}
+            cout<<endl;
+        }
+        else cout<<h->getside()<<" wolf "<<num<<" has no weapon"<<endl;
+    }
+    
+
 };
 
 
 class iceman :public Warrior {
-
+    
 public:
-	iceman(int l, int s, headquarter* H) : Warrior("iceman", l, s, H) {		
-		h->add_iceman(); 
-		getweapon(H->gettotal() % 3);
-		
-	}
-	
-	void getweapon(int wpn) {
-		weapon *wpp;
-		if (wpn == 0)wpp = new sword(strength);
-		if (wpn == 1)wpp = new bomb();
-		if (wpn == 2)wpp = new arrow();
-		wp.push_back(wpp);
-	}
-	
-	void warrior_print() {
-		cout << h->getside() << " " << name << " " << h->gettotal() << " born with strength " << life << "," << h->get_iceman() << " " << name << " in " << h->getside() << " headquarter" << endl;
-		cout << "It has a " << (wp.at(0))->getname() << endl;
-	}
+    iceman(int l, int s, headquarter* H) : Warrior("iceman", l, s, H) {
+        h->add_iceman();
+        getweapon(H->gettotal() % 3);
+        
+    }
+    
+    void getweapon(int wpn) {
+        weapon *wpp;
+        if (wpn == 0)wpp = new sword(strength);
+        if (wpn == 1)wpp = new bomb();
+        if (wpn == 2)wpp = new arrow();
+        wp.push_back(wpp);
+    }
+    
+    void warrior_print() {
+        cout << h->getside() << " " << name << " " << h->gettotal() << " born with strength " << life << "," << h->get_iceman() << " " << name << " in " << h->getside() << " headquarter" << endl;
+        
+    }
+    void report_weapon(){
+        if(wp.size()>0){
+            cout<<h->getside()<<" iceman "<<num<<" has ";
+            wp.at(0)->report();
+            cout<<endl;
+        }
+        else cout<<h->getside()<<" iceman "<<num<<" has no weapon"<<endl;
+    }
+
 };
 
 
 class lion :public Warrior {
 private:
-	int loyalty;
+    int loyalty;
 public:
-	lion(int l, int s, headquarter* H) : Warrior("lion", l, s, H) {		
-		h->add_lion(); 
-		loyalty = h->getM()- l;
-	}
-	
-	
-	void warrior_print() {
-		cout << h->getside() << " " << name << " " << h->gettotal() << " born with strength " << life << "," << h->get_lion() << " " << name << " in " << h->getside() << " headquarter" << endl;
-		cout << "It's loyalty is " << loyalty << endl;
-	}
+    lion(int l, int s, headquarter* H) : Warrior("lion", l, s, H) {
+        h->add_lion();
+        loyalty = h->getM()- l;
+    }
+    
+    
+    void warrior_print() {
+        cout << h->getside() << " " << name << " " << h->gettotal() << " born with strength " << life << "," << h->get_lion() << " " << name << " in " << h->getside() << " headquarter" << endl;
+        cout << "It's loyalty is " << loyalty << endl;
+    }
 };
 
 
-void bomb::explode(Warrior &w1, Warrior &w2) {
-	w1.setlife(0);
-	w2.setlife(0);
-	delete this;
+void bomb::explode(Warrior *w1, Warrior *w2) {
+    w1->setlife(0);
+    w2->setlife(0);
+    
 };
 
+int arrow::shoot(Warrior *w) {
+    count--;
+    w->changelife(-R);
+    if (count == 0)lost = true;
+    return count;
+}
+
+//////////////////////////////////////////////////////
+//////////////////    city       /////////////////////
+//////////////////////////////////////////////////////
 class city {
-
+    
 private:
-	int number;//city number
-	int life;
-	int flag = 0;//red 1 or blue -1
-	bool fight = false;
-	int win = 0;//red 1 blue -1
-
+    int number;//city number
+    int life;
+    int flag = 0;//red 1 or blue -1
+    bool fight = false;
+    int win = 0;//red 1 blue -1
+    Warrior* blue=NULL;
+    Warrior* red=NULL;
+    
 public:
-	void setflag(int i) {
-		flag = i;
-	}
-	int getflag() {
-		return flag;
-	}
-	void setnum(int j) {
-		number = j;
-	}
-	int getnum() {
-		return number;
-	}
-	void setlife(int i) {
-		life = i;
-	}
-	int getlife() {
-		return life;
-	}
-	void setwin(int i) {
-		win = i;
-	}
-	int getwin() {
-		return win;
-	}
+    city(int i):number(i){}
+    void setflag(int i) {
+        flag = i;
+    }
+    int getflag() {
+        return flag;
+    }
+    void setnum(int j) {
+        number = j;
+    }
+    int getnum() {
+        return number;
+    }
+    void setlife(int i) {
+        life = i;
+    }
+    int getlife() {
+        int l=life;
+        life=0;
+        return l;
+    }
+    void setwin(int i) {
+        win = i;
+    }
+    int getwin() {
+        return win;
+    }
+    void set_blue_warrior(Warrior *w){
+        blue=w;
+    }
+    void set_red_warrior(Warrior *w){
+        red=w;
+    }
+    Warrior* get_red_warrior(){
+        return red;
+    }
+    Warrior* get_blue_warrior(){
+        return blue;
+    }
 };
 
+void Warrior::march(vector<city*> cities){
+    if((h->getside()=="red")&((c->getnum())<cities.size())){
+        c->set_red_warrior(NULL);
+        c=cities.at(c->getnum()+1);
+        c->set_red_warrior(this);
+        if(c->getnum()==(cities.size()))reached=true;
+    }
+    if((h->getside()=="blue")&((c->getnum())>0)){
+        c->set_blue_warrior(NULL);
+        c=cities.at(c->getnum()-1);
+        c->set_blue_warrior(this);
+        if(c->getnum()==0)reached=true;
+}
+    city_num=c->getnum();
+};
 
+void Warrior::start_march(vector<city*> cities){
+    if(h->getside()=="red"){c=cities.at(0);
+        c->set_red_warrior(this);}
+    if(h->getside()=="blue"){c=cities.at(cities.size()-1);
+        c->set_blue_warrior(this);}
+    city_num=c->getnum();
+};
+//////////////////////////////////////////////////////////////
+///////////////////       main       ////////////////////////
+//////////////////////////////////////////////////////////////
 int main() {
-	int ld, ln, li, ll, lw, R, N;
-	int sd, sn, si, sl, sw;
-	int Case;
-	int c = 0;
-	int M;
-	cin >> Case;
+    int ld, ln, li, ll, lw, R, N;
+    int sd, sn, si, sl, sw;
+    int Case;
+    int c = 0;
+    int M;
+    cin >> Case;
+    
+    while (c<Case) {
+        
+        cin >> M>> N >> R;
+        cin >> ld >> ln >> li >> ll >> lw;
+        cin >> sd >> sn >> si >> sl >> sw;
+        cout << "Case:" << c + 1 << endl;
+        int life1[5] = { li,ll,lw,ln,ld };
+        int life2[5] = { ll,ld,ln,li,lw };
+        int strength1[5] = { si,sl,sw,sn,sd };
+        int strength2[5] = { sl,sd,sn,si,sw };
+        string warrior1[5] = { "iceman","lion","wolf","ninja","dragon" };
+        string warrior2[5] = { "lion","dragon","ninja","iceman","wolf" };
+        arrow::setR(R);
+        
+        vector<city*> cities;
+        for(int i=0;i<N+2;i++){ //0,N+1 are destinations
+            city *c=new city(i);
+            cities.push_back(c);
+        }
+        
+        queue<string> w1;
+        queue<int> l1;
+        queue<int> s1;
+        queue<string> w2;
+        queue<int> l2;
+        queue<int> s2;
+        
+        vector<Warrior*> warriors1;
+        vector<Warrior*> warriors2;
+        
+        for (int i = 0; i<5; i++) {
+            w1.push(warrior1[i]);
+            l1.push(life1[i]);
+            s1.push(strength1[i]);
+            w2.push(warrior2[i]);
+            l2.push(life2[i]);
+            s2.push(strength2[i]);
+        }
+        
+        headquarter *h1 = new headquarter("red", M);
+        headquarter *h2 = new headquarter("blue", M);
+        
+        int time = 0;
+        
+        int stop = 0,stop1=0,stop2=0;
+        
+        while (stop<2) {
+            
+            if (stop1==0) {
+                printf("%03d:%02d", time,0);
+                /////////////// make warriors ////////////////////
+                int nomake1 = 0;
+                while (!h1->check_warrior(l1.front())) { //find a warrior that can be made
+                    l1.push(l1.front());
+                    l1.pop();
+                    s1.push(s1.front());
+                    s1.pop();
+                    w1.push(w1.front());
+                    w1.pop();
 
-	while (c<Case) {
+                    nomake1++;
+                    if (nomake1 == 5) {
+                        cout << "red headquarter stops making warriors" << endl;
+                        stop++;
+                        stop1++;
+                        break;
+                    }
+                }
+                
+                if (nomake1 < 5) {
+                    if (w1.front() == "iceman") {
+                        Warrior *w = new iceman(l1.front(), s1.front(),h1);
+                        h1->setM(h1->getM() - w->getlife());
+                        //w->warrior_print();
+                        warriors1.push_back(w);
+                    }
+                    if (w1.front() == "lion") {
+                        Warrior *w = new lion(l1.front(), s1.front(),h1);
+                        h1->setM(h1->getM() - w->getlife());
+                        //w->warrior_print();
+                        warriors1.push_back(w);
+                    }
+                    if (w1.front() == "wolf") {
+                        Warrior *w = new wolf(l1.front(), s1.front(),h1);
+                        h1->setM(h1->getM() - w->getlife());
+                        //w->warrior_print();
+                        warriors1.push_back(w);
+                    }
+                    if (w1.front() == "ninja") {
+                        Warrior *w = new ninja(l1.front(), s1.front(),h1);
+                        h1->setM(h1->getM() - w->getlife());
+                        //w->warrior_print();
+                        warriors1.push_back(w);
+                    }
+                    if (w1.front() == "dragon") {
+                        Warrior *w = new dragon(l1.front(), s1.front(), h1);
+                        h1->setM(h1->getM() - w->getlife());
+                        //w->warrior_print();
+                        warriors1.push_back(w);
+                    }
+                    
+                    l1.push(l1.front());
+                    l1.pop();
+                    s1.push(s1.front());
+                    s1.pop();
+                    w1.push(w1.front());
+                    w1.pop();
+                }
+            }
+            
+            if (stop2==0) {
+                printf("%03d:%02d", time,0);
+                /////////////// make warriors ////////////////////
+                int nomake2 = 0;
+                
+                while (!h2->check_warrior(l2.front())) { //find a warrior that can be made
+                    l2.push(l2.front());
+                    l2.pop();
+                    s2.push(s2.front());
+                    s2.pop();
+                    w2.push(w2.front());
+                    w2.pop();
+                    nomake2++;
+                    if (nomake2 == 5) {
+                        cout << "blue headquarter stops making warriors" << endl;
+                        stop++;
+                        stop2++;
+                        break;
+                    }
+                }
+                
+                if (nomake2 < 5) {					
+                    if (w2.front() == "iceman") {
+                        Warrior *w = new iceman(l2.front(), s2.front(),h2);						
+                        h2->setM(h2->getM() - w->getlife());
+                        w->warrior_print();
+                        
+                        warriors2.push_back(w);
+                    }
+                    if (w2.front() == "lion") {						
+                        Warrior *w = new lion(l2.front(), s2.front(), h2);						
+                        h2->setM(h2->getM() - w->getlife());
+                        w->warrior_print();
+                        
+                        warriors2.push_back(w);
+                    }
+                    if (w2.front() == "wolf") {
+                        Warrior *w = new wolf(l2.front(), s2.front(),h2);						
+                        h2->setM(h2->getM() - w->getlife());
+                        w->warrior_print();
+                        
+                        warriors2.push_back(w);
+                    }
+                    if (w2.front() == "ninja") {
+                        Warrior *w = new ninja(l2.front(), s2.front(),h2);						
+                        h2->setM(h2->getM() - w->getlife());
+                        
+                        warriors2.push_back(w);
+                    }
+                    if (w2.front() == "dragon") {
+                        Warrior *w = new dragon(l2.front(), s2.front(), h2);						
+                        h2->setM(h2->getM() - w->getlife());
+                        w->warrior_print();
+                        
+                        warriors2.push_back(w);
+                    }
+                    
+                    
+                    l2.push(l2.front());
+                    l2.pop();
+                    s2.push(s2.front());
+                    s2.pop();
+                    w2.push(w2.front());
+                    w2.pop();
+                    
+                }
+            }
+            /////////////// lion run away ///////////////////////
+            printf("%03d:%02d ", time,5);
+            for(vector<Warrior*>::iterator it=warriors1.begin();it<warriors1.end();it++){
+                if(((*it)->getname()=="lion")&((*it)->getmorale()<=0)){
+                    cout<<"red lion"<<(*it)->get_num()<< " ran away"<<endl;
+                    warriors1.erase(it);
+                    
+                }
+            }
+            printf("%03d:%02d ", time,5);
+            for(vector<Warrior*>::iterator it=warriors2.begin();it<warriors2.end();it++){
+                if(((*it)->getname()=="lion")&((*it)->getmorale()<=0)){
+                    printf("%03d:%d",time,5);
+                    cout<<"blue lion"<<(*it)->get_num()<< " ran away"<<endl;
+                    warriors2.erase(it);
+                    
+                }
+            }
+            
+            /////////////// Warrior march ///////////////////////
+            printf("%03d:%02d ", time,10);
+            for(vector<Warrior*>::iterator it=warriors1.begin();it<warriors1.end();it++){
+                if ((*it)->not_march()){
+                    (*it)->set_march();
+                }
+                else (*it)->march(cities);
+                cout<<"blue "<<(*it)->getname()<<" "<<(*it)->get_num()<<" marched to city "<<(*it)->get_city_num()<<" with "<<(*it)->getlife()<<" element and force "<<(*it)->get_strength()<<endl;
+                if((*it)->reach_opp()){
+                    h1->set_reached();
+                    if(h1->get_reached()==2)h2->get_taken();
+                    break;
+                }
+            }
+            if(h2->is_taken())break;
+            
+            printf("%03d:%02d ", time,10);
+            for(vector<Warrior*>::iterator it=warriors2.begin();it<warriors2.end();it++){
+                if ((*it)->not_march()){
+                    (*it)->set_march();
+                }
+                else (*it)->march(cities);
+                if((*it)->reach_opp()){
+                    h2->set_reached();
+                    if(h2->get_reached()==2)h1->get_taken();
+                    break;
+                }
+            }
+            if(h1->is_taken())break;
+            
+            /////////////// shoot arrow ////////////////////////
+            for(vector<city*>::iterator it=cities.begin();it<cities.end()-1;it++){
+               
+                if(((*it)->get_red_warrior())!=NULL){
+                    Warrior *red=(*it)->get_red_warrior();
+                    if(red->check_weapon("arrow")){
+                    if((*(it+1))->get_blue_warrior()!=NULL)
+                    {
+                        Warrior *blue=(*(it+1))->get_blue_warrior();
+                        printf("%03d:%02d ", time,35);
+                        int left=red->shoot_arrow(blue);
+                        if(left==0)red->lostweapon();//??????
+                    }
+                }
+                }
+            }
+            
+            
+            for(vector<city*>::iterator it=cities.begin();it<cities.end()-1;it++){
+                if(((*it)->get_red_warrior())!=NULL){
+                    Warrior *red=(*it)->get_red_warrior();
+                    if(red->check_weapon("arrow")){
+                        if((*(it+1))->get_blue_warrior()!=NULL)
+                        {
+                            Warrior *blue=(*(it+1))->get_blue_warrior();
+                            printf("%03d:%02d ", time,35);
+                            int left=red->shoot_arrow(blue);
+                            if(left==0)red->lostweapon();
+                        }
+                    }
+                }
+            }
 
-		cin >> M;// >> N >> R;
-		cin >> ld >> ln >> li >> ll >> lw;
-		//cin >> sd >> sn >> si >> sl >> sw;
-		sd = 1; sn = 1; si = 1; sl = 1; sw = 1;
-		cout << "Case: " << c + 1 << endl;
-		int life1[5] = { li,ll,lw,ln,ld };
-		int life2[5] = { ll,ld,ln,li,lw };
-		int strength1[5] = { si,sl,sw,sn,sd };
-		int strength2[5] = { sl,sd,sn,si,sw };
-		string warrior1[5] = { "iceman","lion","wolf","ninja","dragon" };
-		string warrior2[5] = { "lion","dragon","ninja","iceman","wolf" };
-		//arrow::setR(R);
+            /////////////// bomb explode ///////////////////////
+            for(vector<city*>::iterator it=cities.begin()+1;it<cities.end()-1;it++){
+                
+                if(((*it)->get_red_warrior())!=NULL){
+                    Warrior *red=(*it)->get_red_warrior();
+                    if(red->check_weapon("bomb")){
+                        if((*it)->get_blue_warrior()!=NULL)
+                        {
+                            Warrior *blue=(*it)->get_blue_warrior();
+                            if(!(red->check_kill(blue))){
+                            
+                            }
+                        }
+                    }
+                }
+            }
 
-		queue<string> w1;
-		queue<int> l1;
-		queue<int> s1;
-		queue<string> w2;
-		queue<int> l2;
-		queue<int> s2;
+            
+            ///////////////  attack ////////////////////////////
+            for(vector<city*>::iterator it=cities.begin()+1;it<cities.end()-1;it++){
+                city* c=(*it);
+                if((((*it)->get_red_warrior())!=NULL)&(((*it)->get_blue_warrior())!=NULL)){
+                    Warrior *red=(*it)->get_red_warrior();
+                    Warrior *blue=(*it)->get_blue_warrior();
+                if((c->getflag()==1)|((c->getflag()==0)&(c->getnum()%2==1))){//flag is red or odd number, red attack blue
+                    red->Attack(blue);
+                    if(blue->get_dead())red->setwin(true);
+                    }
+            
+                else{
+                    blue->Attack(red);
+                    if(red->get_dead())blue->setwin(true);
 
-		vector<Warrior*> warriors1;
-		vector<Warrior*> warriors2;
+                }
+            }
+            }
 
-		for (int i = 0; i<5; i++) {
-			w1.push(warrior1[i]);
-			l1.push(life1[i]);
-			s1.push(strength1[i]);
-			w2.push(warrior2[i]);
-			l2.push(life2[i]);
-			s2.push(strength2[i]);
-		}
+            
+            //////////////// fight back ////////////////////////
+            for(vector<city*>::iterator it=cities.begin()+1;it<cities.end()-1;it++){
+               if((((*it)->get_red_warrior())!=NULL)&(((*it)->get_blue_warrior())!=NULL)){
+                    Warrior *red=(*it)->get_red_warrior();
+                    Warrior *blue=(*it)->get_blue_warrior();
+                    if(blue->get_attacked()){//flag is red or odd number, red attack blue
+                        blue->fightback(red);
+                        if(red->get_dead())blue->setwin(true);
+                    }
+                    if(red->get_attacked()){//flag is red or odd number, red attack blue
+                        red->fightback(blue);
+                        if(blue->get_dead())red->setwin(true);
+                    }
+                }
+            }
 
-		headquarter *h1 = new headquarter("red", M);
-		headquarter *h2 = new headquarter("blue", M);
+            
+            ///////////////// warrior killed //////////////////
+            for(vector<Warrior*>::iterator it=warriors1.begin();it<warriors1.end();it++){
+                if((*it)->get_dead()){
+                    if((*it)->get_killed()){
+                    cout<<endl;
+                    }
+                    warriors1.erase(it);
+                }
+            }
+            
+            ///////////////// warrior yell ////////////////////
+            for(vector<Warrior*>::iterator it=warriors1.begin();it<warriors1.end();it++){
+                if((*it)->getname()=="dragon"){
+                    if(((*it)->getmorale())>0.8)
+                        cout<<endl;
+                }
+            }
 
-		int time = 0;
+            
+            ///////////////// get elements ////////////////////
+            for(vector<city*>::iterator it=cities.begin()+1;it<cities.end()-1;it++){
+                if((((*it)->get_red_warrior())!=NULL)&(((*it)->get_blue_warrior())==NULL)){
+                    h1->add_element((*it)->getlife());
+                }
+                if((((*it)->get_red_warrior())==NULL)&(((*it)->get_blue_warrior())!=NULL)){
+                    h2->add_element((*it)->getlife());
+                }
+            }
 
-		int nomake1 = 0;
-		int nomake2 = 0;
-		int stop = 0,stop1=0,stop2=0;
+            
+            ///////////////// rise flag //////////////////////
+            for(vector<city*>::iterator it=cities.begin()+1;it<cities.end()-1;it++){
+                if((((*it)->get_red_warrior())!=NULL)&(((*it)->get_blue_warrior())==NULL)){
+                    (*it)->setflag(1);
+                }
+                if((((*it)->get_red_warrior())==NULL)&(((*it)->get_blue_warrior())!=NULL)){
+                    (*it)->setflag(-1);
+                }
+            }
 
-		while (stop<2) {
-			printf("%03d ", time);
-			if (stop1==0) {
-				/////////////// make warriors ////////////////////
-				int nomake1 = 0;
-				while (!h1->check_warrior(l1.front())) { //find a warrior that can be made
-					l1.push(l1.front());
-					l1.pop();
-					s1.push(s1.front());
-					s1.pop();
-					w1.push(w1.front());
-					w1.pop();
-					nomake1++;
-					if (nomake1 == 5) {
-						cout << "red headquarter stops making warriors" << endl;
-						stop++;
-						stop1++;
-						break;
-					}
-				}
-				
-				if (nomake1 < 5) {					
-					if (w1.front() == "iceman") {						
-						Warrior *w = new iceman(l1.front(), s1.front(),h1);						
-						h1->setM(h1->getM() - w->getlife());						
-						w->warrior_print();						
-						warriors1.push_back(w);						
-					}
-					if (w1.front() == "lion") {						
-						Warrior *w = new lion(l1.front(), s1.front(),h1);						
-						h1->setM(h1->getM() - w->getlife());
-						w->warrior_print();
-						warriors1.push_back(w);
-					}
-					if (w1.front() == "wolf") {
-						Warrior *w = new wolf(l1.front(), s1.front(),h1);						
-						h1->setM(h1->getM() - w->getlife());
-						w->warrior_print();
-						warriors1.push_back(w);
-					}
-					if (w1.front() == "ninja") {
-						Warrior *w = new ninja(l1.front(), s1.front(),h1);						
-						h1->setM(h1->getM() - w->getlife());
-						w->warrior_print();
-						warriors1.push_back(w);
-					}
-					if (w1.front() == "dragon") {
-						Warrior *w = new dragon(l1.front(), s1.front(), h1);						
-						h1->setM(h1->getM() - w->getlife());
-						w->warrior_print();
-						warriors1.push_back(w);
-					}					
+            
+            ///////////////// reach headquarter///////////////
+            city* c1=cities.at(0);
+            city* c2=cities.at(N+1);
+            if(c1->get_blue_warrior()!=NULL){
+                Warrior* blue=c1->get_blue_warrior();
+                if(!blue->reach_opp()){
+                    blue->set_reached(true);
+                    h1->set_reached();
+                    cout<<endl;
+                }
+            }
+            if(c2->get_red_warrior()!=NULL){
+                Warrior* red=c1->get_red_warrior();
+                if(!red->reach_opp()){
+                    red->set_reached(true);
+                    h2->set_reached();
+                    cout<<endl;
+                }
+            }
 
-					l1.push(l1.front());
-					l1.pop();
-					s1.push(s1.front());
-					s1.pop();
-					w1.push(w1.front());
-					w1.pop();
-				}
-			}
+            
+            ///////////////// headquarter taken ///////////////
+            if(h1->get_reached()==2)h1->get_taken();
+            if(h2->get_reached()==2)h2->get_taken();
+            
+            ///////////////// report elements /////////////////
+            printf("%03d:%02d ", time,50);
+            cout<<h1->getM()<<" elements in red headquarter"<<endl;
+            printf("%03d:%02d ", time,50);
+            cout<<h2->getM()<<" elements in red headquarter"<<endl;
+            
+            ///////////////// report weapons //////////////////
+            printf("%03d:%02d ", time,55);
+            for(vector<Warrior*>::iterator it=warriors1.begin();it<warriors1.end();it++){
+                if((*it)->check_any_weapon())(*it)->report_weapon();
+            }
+            printf("%03d:%02d ", time,55);
+            for(vector<Warrior*>::iterator it=warriors2.begin();it<warriors2.end();it++){
+                if((*it)->check_any_weapon())(*it)->report_weapon();
+            }
+            
+            time++;
 
-			if (stop2==0) {
-				/////////////// make warriors ////////////////////
-				int nomake2 = 0;
-				
-				while (!h2->check_warrior(l2.front())) { //find a warrior that can be made
-					l2.push(l2.front());
-					l2.pop();
-					s2.push(s2.front());
-					s2.pop();
-					w2.push(w2.front());
-					w2.pop();
-					nomake2++;
-					if (nomake2 == 5) {
-						cout << "blue headquarter stops making warriors" << endl;
-						stop++;
-						stop2++;
-						break;
-					}
-				}
-				
-				if (nomake2 < 5) {					
-					if (w2.front() == "iceman") {
-						Warrior *w = new iceman(l2.front(), s2.front(),h2);						
-						h2->setM(h2->getM() - w->getlife());
-						w->warrior_print();
-						warriors2.push_back(w);
-					}
-					if (w2.front() == "lion") {						
-						Warrior *w = new lion(l2.front(), s2.front(), h2);						
-						h2->setM(h2->getM() - w->getlife());
-						w->warrior_print();
-						warriors2.push_back(w);
-					}
-					if (w2.front() == "wolf") {
-						Warrior *w = new wolf(l2.front(), s2.front(),h2);						
-						h2->setM(h2->getM() - w->getlife());
-						w->warrior_print();
-						warriors2.push_back(w);
-					}
-					if (w2.front() == "ninja") {
-						Warrior *w = new ninja(l2.front(), s2.front(),h2);						
-						h2->setM(h2->getM() - w->getlife());
-						w->warrior_print();
-						warriors2.push_back(w);
-					}
-					if (w2.front() == "dragon") {
-						Warrior *w = new dragon(l2.front(), s2.front(), h2);						
-						h2->setM(h2->getM() - w->getlife());
-						w->warrior_print();
-						warriors2.push_back(w);
-					}
-					
-
-					l2.push(l2.front());
-					l2.pop();
-					s2.push(s2.front());
-					s2.pop();
-					w2.push(w2.front());
-					w2.pop();
-
-				}
-			}
-			
-			time++;
-			/////////////// lion run away ///////////////////////
-			/////////////// Warrior march ///////////////////////
-			/////////////// shoot arrow ////////////////////////
-			/////////////// bomb explode ///////////////////////
-			///////////////  attack ////////////////////////////
-			//////////////// fight back ////////////////////////
-			///////////////// warrior killed //////////////////
-			///////////////// warrior yell ////////////////////
-			///////////////// get elements ////////////////////
-			///////////////// rise flag //////////////////////
-			///////////////// reach headquarter///////////////
-			///////////////// headquarter taken ///////////////
-			///////////////// report elements /////////////////
-			///////////////// report weapons //////////////////
-		}
-		c++;
-	}
-	return 0;
+        }
+        c++;
+    }
+    return 0;
 }
