@@ -1,0 +1,209 @@
+
+#include <iostream>
+#include<string>
+#include<cstring>
+#include <stdio.h>
+using namespace std;
+
+class big_num{
+private: int *num;
+    long length;
+    int sign;
+public:
+    big_num(){sign=1;}
+    big_num(string a){
+        num=new int[10000];
+        length=a.length();
+        for(int i=0;i<a.length();i++){
+            num[10000-length+i]=a.at(i)-'0';
+        }
+    }
+    
+    big_num(int n){
+        num=new int[10000];
+        length=1;
+        num[9999]=n;
+        sign=1;
+    }
+    
+    int operator[](const int& i){
+        return num[i];
+    }
+    
+    int compare(big_num num2){
+        for(int i=0;i<10000;i++){
+            if(num[i]>num2.num[i]){return 1;}
+            else if(num[i]<num2.num[i]){return -1;}
+        }
+        return 0;
+    }
+    
+    big_num moveleft(int w){//add 0 to right
+        big_num ml;
+        ml.num=new int[10000];
+        for(int i=0;i<10000-w;i++){
+            ml.num[i]=num[i+w];
+        }
+        return ml;
+    }
+    
+    big_num moveright(int w){//add 0 to left
+        big_num mr;
+        mr.num=new int[10000];
+        for(int i=w;i<10000;i++){
+            mr.num[i]=num[i-w];
+        }
+        return mr;
+    }
+    
+    big_num& operator=(big_num num2){
+        num=new int[10000];
+        sign=num2.sign;
+        memcpy(num,num2.num,sizeof(int)*10000);
+        return *this;
+    }
+    
+    big_num operator+(big_num num2){
+        big_num sum;
+        sum.num=new int[10000];
+        int add_digit=0;
+        for(int i=9999;i>=0;i--){
+            sum.num[i]=num[i]+num2[i]+add_digit;
+            if(sum.num[i]>=10){
+                sum.num[i]=sum.num[i]-10;
+                add_digit=1;
+            }
+            else add_digit=0;
+            
+        }
+        return sum;
+    }
+    
+    big_num operator-(big_num num2){
+        big_num diff;
+        diff.num=new int[10000];
+        int min_digit=0;
+        for(int i=9999;i>=0;i--){
+            diff.num[i]=num[i]-num2[i]-min_digit;
+            if(diff[i]<0){diff.num[i]=diff[i]+10;
+                min_digit=1;
+            }
+            else min_digit=0;
+        }
+        if(diff.num[0]==9){
+            for(int i=0;i<10000;i++){
+                diff.num[i]=9-diff.num[i];
+            }
+            big_num one("1");
+            diff=diff+one;
+            diff.sign=-1;
+        }
+        return diff;
+    }
+    
+    big_num operator*(big_num num2){
+        big_num multi,temp;
+        int add_digit=0;
+        multi.num=new int[10000];
+        temp.num=new int[10000];
+        big_num zero("0");
+        
+        if(num2.compare(zero)!=0&compare(zero)!=0){
+            for(int i=9999;i>9999-num2.length;i--){
+                for(int j=9999;j>=9999-length-1;j--){
+                    temp.num[j]=num[j]*num2.num[i]+add_digit;
+                    if(temp.num[j]>=10){
+                        add_digit=temp.num[j]/10;
+                        temp.num[j]=temp.num[j]%10;
+                    }
+                    else add_digit=0;
+                }
+                
+                temp=temp.moveleft((9999-i));
+                
+                multi=multi+temp;
+                temp.num=new int[10000];
+            }
+        }
+        return multi;
+    }
+    
+    big_num operator/(big_num num2){
+        big_num div,temp,remain;
+        div.num=new int[10000];
+        temp.num=new int[10000];
+        remain.num=new int[10000];
+        remain=*this;
+        if(compare(num2)==1|compare(num2)==0){
+            double left=length-num2.length;
+            while(left>=0){
+                temp=remain.moveright((int)left);
+                //temp.print_big_num();
+                if(temp.compare(num2)==1|temp.compare(num2)==0){
+                    for(int d=9;d>=1;d--){
+                        big_num digit(d);
+                        big_num multi;
+                        multi.num=new int[10000];
+                        multi=digit*num2;
+                        
+                        //cout<<"temp:";
+                        //temp.print_big_num();
+                        //cout<<"multi:";
+                        //multi.print_big_num();
+                        
+                        if(temp.compare(multi)==1|temp.compare(multi)==0){
+                            div.num[10000-(int)left-1]=d;
+                            //cout<<"digit:"<<d<<endl;
+                            remain=remain-multi.moveleft(left);
+                            break;
+                        }//if
+                    }//for loop
+                }//if temp
+                left=left-1;
+            }//while loop
+        }//if num>num2
+        
+        return div;
+    }
+    
+    void print_big_num(){
+        int start=0;
+        if(sign==-1)cout<<'-';
+        for(int i=0;i<10000;i++){
+            if(num[i]!=0&start==0)start=1;
+            if(start==1)cout<<num[i];
+        }
+        if(start==0)cout<<0;
+        cout<<endl;
+    }
+    
+    
+};
+
+int main(){
+    string a,b;
+    char o;
+    cin>>a>>o>>b;
+    big_num result;
+    big_num n1(a);
+    big_num n2(b);
+    
+    if(o=='+'){
+        result=n1+n2;
+    }
+    
+    if(o=='-'){
+        result=n1-n2;
+    }
+    
+    if(o=='*'){
+        result=n1*n2;
+    }
+    
+    if(o=='/'){
+        result=n1/n2;
+    }
+    
+    result.print_big_num();
+    
+}
