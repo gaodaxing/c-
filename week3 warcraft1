@@ -1,0 +1,171 @@
+//
+//  main.cpp
+//  testcode
+//
+//  Created by Daxing Gao on 16/8/30.
+//  Copyright © 2016年 Daxing Gao. All rights reserved.
+//
+
+#include <iostream>
+#include<string>
+#include<list>
+#include<iomanip>
+#include <stdio.h>
+using namespace std;
+
+class warrior{
+    
+private:
+    string name;
+    int strength;
+    int count=0;
+    
+    
+public:
+    
+    warrior(string n):name(n){
+        
+    }
+    
+    void setstrength(int s){
+        strength=s;
+    }
+    
+    int getstrength(){
+        return strength;
+    }
+    
+    int getcount(){
+        return count;
+    }
+    
+    void setcount(){
+        count++;
+    }
+    
+    string getname(){
+        return name;
+    }
+};
+
+
+class headquarter{
+private:
+    string side;
+    int M;
+    int total=0;
+    
+public:
+    headquarter(string s):side(s){
+        
+    }
+    
+    void setM(int m){
+        M=m;
+    }
+    
+    int getM(){
+        return M;
+    }
+    
+    int createwarrior(warrior* w){
+        int str=w->getstrength();
+        if((M-str)>=0){w->setcount();
+            total++;
+            cout<<side<<" "<<w->getname()<<" "<<total<<" born with strength "<<w->getstrength()<<","<<w->getcount()<<" "<<w->getname()<<" in "<<side<<" headquarter"<<endl;
+            return M-str;}
+        else return -1;
+    }
+    
+};
+
+
+int main(){
+    int Case,d,n,i,l,w,M,time=0;//time is total time
+    
+    //take input for case;total strength for headquarter;dragon,nijia,iceman,lion,wolf strength
+    cin>>Case;
+    
+    for(int c=1;c<=Case;c++){
+    cin>>M>>d>>n>>i>>l>>w;
+    
+    string w1[5]={"iceman","lion","wolf","ninja","dragon"};
+    
+    int s1[5]={i,l,w,n,d};
+    
+    string w2[5]={"lion","dragon","ninja","iceman","wolf"};
+    int s2[5]={l,d,n,i,w};
+    
+    warrior *wl1[5];//warriors order in red
+    warrior *wl2[5];//warriors order in blue
+    
+    for(int i=0;i<5;i++){//list of warriors in red
+        wl1[i]=new warrior(w1[i]);
+        wl1[i]->setstrength(s1[i]);
+    }
+    
+    for(int i=0;i<5;i++){//list of warriors in blue
+        wl2[i]=new warrior(w2[i]);
+        wl2[i]->setstrength(s2[i]);
+    }
+    
+    
+        
+    headquarter red("red");//two headquarters
+    red.setM(M);
+    
+    headquarter blue("blue");
+    blue.setM(M);
+    
+    
+    
+    cout<<"Case:"<<c<<endl;
+    
+        time=0;
+        int f1=0;
+        int f2=0;
+        int t1,t2;
+    
+    while(red.getM()>=0|blue.getM()>=0){
+        
+        int flag1=0;
+        int flag2=0;
+        int check1,check2;
+        
+        if(red.getM()>=0){//if red have left strength, make warriors
+            printf("%03d ",time);
+            t1=time+f1;
+            check1=red.createwarrior(wl1[t1%5]);//remaining headquarter strength
+            while(check1==-1&flag1<6){
+                check1=red.createwarrior(wl1[(t1+flag1)%5]);
+                if(check1==-1){flag1++;}
+            }
+            f1+=flag1;
+            red.setM(check1);
+            if(red.getM()<0){cout<<"red headquarter stops making warriors"<<endl;}
+        }
+        
+        
+        
+        if(blue.getM()>=0){//if blue have left strength, make warriors
+            printf("%03d ",time);
+            t2=time+f2;
+            check2=blue.createwarrior(wl2[t2%5]);//remaining headquarter strength
+            while(check2==-1&flag2<6){
+                check2=blue.createwarrior(wl2[(t2+flag2)%5]);
+                if(check2==-1)flag2++;
+            }
+            f2+=flag2;
+            blue.setM(check2);
+            if(blue.getM()<0){cout<<"blue headquarter stops making warriors"<<endl;
+                blue.setM(-1);}
+        }
+        
+        
+        time++;
+        
+    }
+    }
+    
+    return 0;
+}
