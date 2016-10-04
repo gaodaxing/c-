@@ -21,18 +21,21 @@ int main()
    c=log10(d);
    e=pow(10,c);
    
-   if(c>=0){
-   cout<<setprecision(6+c)<<d<<endl;
+   if(c>=0){//d>1
+   cout<<setfill('0')<<setprecision(6+c)<<setw(7+c)<<left<<d<<endl;
    if(D<0)cout<<"-";
-   cout<<setprecision(8)<<d/e<<"e+"<<c<<endl;
+   cout<<setfill('0')<<setprecision(8)<<setw(9)<<left<<d/e;
+   cout<<"e+"<<c<<endl;
     }
-    else{
+    else{//d<1
         c=c-1;
         e=e/10;
-        int ee=d*pow(10,-e);
-        cout<<setprecision(8)<<ee/pow(10,-e)<<endl;
+        int ee=d*pow(10,5);
+        
+        cout<<setfill('0')<<setprecision(5)<<setw(6)<<left<<ee*pow(10,-5)<<endl;
         if(D<0)cout<<"-";
-        cout<<setprecision(8)<<d/e<<"e"<<c<<endl;
+        cout<<setfill('0')<<setprecision(8)<<setw(9)<<left<<d/e;
+        cout<<"e"<<c<<endl;
     }
    }
    return 0;
