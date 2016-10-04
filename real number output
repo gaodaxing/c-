@@ -1,0 +1,40 @@
+#include <iostream>
+#include<cmath>
+#include<iomanip>
+
+using namespace std;
+
+int main()
+{
+    double D,d;
+    double e;
+    int c;
+    
+   cin>>D; 
+   
+   
+   if(D==0){cout<<"0.00000"<<endl;cout<<"0.0000000e0"<<endl;}
+   else{
+   if(D<0){d=-D;cout<<"-";}
+   else d=D;
+   
+   c=log10(d);
+   e=pow(10,c);
+   
+   if(c>=0){
+   cout<<setprecision(6+c)<<d<<endl;
+   if(D<0)cout<<"-";
+   cout<<setprecision(8)<<d/e<<"e+"<<c<<endl;
+    }
+    else{
+        c=c-1;
+        e=e/10;
+        int ee=d*pow(10,-e);
+        cout<<setprecision(8)<<ee/pow(10,-e)<<endl;
+        if(D<0)cout<<"-";
+        cout<<setprecision(8)<<d/e<<"e"<<c<<endl;
+    }
+   }
+   return 0;
+}
+
