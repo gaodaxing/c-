@@ -1,0 +1,73 @@
+// ConsoleApplication4.cpp : Defines the entry point for the console application.
+//
+#include <iostream>
+using namespace std;
+template <class T>
+
+class CArray3D {
+public:
+	
+	class CArray2D {
+	
+	public:		
+		class CArray1D {
+		private: int i;
+				 T *p;
+		public:
+			CArray1D(int x) {
+				i = x;
+				p = new T[x];
+			}
+			T& operator [](int x) {
+				return p[x];
+			}
+		};
+		CArray2D(int x, int y) {
+			i = x;
+			j = y;
+			p = new CArray1D*[i];
+			for (int m = 0; m<i; m++) {
+				p[m] = new CArray1D(y);
+			}
+		}
+		CArray1D& operator[](int x) {
+			return *p[x];
+		}
+	private:
+		int i, j;
+		CArray1D **p;
+
+	};
+	CArray3D(int x, int y, int z) {
+		i = x;
+		j = y;
+		k = z;
+		p = new CArray2D*[x];
+		for (int m = 0; m<i; m++) {
+			p[m] = new CArray2D(y, z);
+		}
+	}
+	CArray2D& operator[](int x) {
+		return *p[x];
+	}
+private:
+	int i, j, k;
+	CArray2D **p;
+
+
+};
+
+int main()
+{
+	CArray3D<int> a(3, 4, 5);
+	int No = 0;
+	for (int i = 0; i < 3; ++i)
+		for (int j = 0; j < 4; ++j)
+			for (int k = 0; k < 5; ++k)
+				a[i][j][k] = No++;
+	for (int i = 0; i < 3; ++i)
+		for (int j = 0; j < 4; ++j)
+			for (int k = 0; k < 5; ++k)
+				cout << a[i][j][k] << ",";
+	return 0;
+}
