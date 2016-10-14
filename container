@@ -1,0 +1,36 @@
+#include <iostream>
+#include <string>
+#include<queue>
+#include<vector>
+#include<set>
+
+using namespace std;
+queue<string> cmds;
+int main()
+{
+   int n;
+   cin>>n;
+   cin.get();
+   char *p[100];
+   bool t;
+   while(true){
+   cin.getline(p,99,'\n')
+   t=process(p);
+   if(!t)break;
+   commandop();
+   }   
+   return 0;
+}
+bool process(const char* p){
+    string s;
+    if(p=='\0')return false;
+    else for(int i=0;char[i]!='\0';i++){
+        if(char[i]==' '){cmds.push_back(s);s.clear();}
+        else s.push_back(char[i]);
+    }
+}
+void commandop(){
+    string cmd=cmds.front();
+    cmds.pop();
+    if(cmd=="new")
+}
