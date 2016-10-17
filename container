@@ -2,35 +2,74 @@
 #include <string>
 #include<queue>
 #include<vector>
-#include<set>
-
+#include<list>
+#include<algorithm>
 using namespace std;
-queue<string> cmds;
+class my_list{
+private: int id;
+public: list<int> ls;
+    my_list(int i):id(i){}
+    int get_id(){
+        return id;
+    }
+    void print_out(){
+        for(list<int>::iterator it=ls.begin();it!=ls.end();it++){
+            cout<<(*it)<<" ";
+        }
+        cout<<endl;
+    }
+    
+};
+vector<my_list> all_list;
+int find_id(int id){
+    for(int j=0;j<all_list.size();j++){
+        if(all_list.at(j).get_id()==id)return j;
+    }
+    return -1;
+}
+
 int main()
 {
-   int n;
-   cin>>n;
-   cin.get();
-   char *p[100];
-   bool t;
-   while(true){
-   cin.getline(p,99,'\n')
-   t=process(p);
-   if(!t)break;
-   commandop();
-   }   
-   return 0;
-}
-bool process(const char* p){
-    string s;
-    if(p=='\0')return false;
-    else for(int i=0;char[i]!='\0';i++){
-        if(char[i]==' '){cmds.push_back(s);s.clear();}
-        else s.push_back(char[i]);
+    int n;
+    cin>>n;
+    string cmd;
+    for(int i=0;i<n;i++){
+        cin>>cmd;
+        if(cmd=="new"){
+            int j;
+            cin>>j;
+            all_list.push_back(my_list(j));
+        }
+        if(cmd=="add"){
+            int id,num;
+            cin>>id>>num;
+            int i=find_id(id);
+            all_list.at(i).ls.push_back(num);
+            all_list.at(i).ls.sort();
+        }
+        if(cmd=="merge"){
+            int id1,id2;
+            cin>>id1>>id2;
+            int i=find_id(id1);
+            int j=find_id(id2);
+            all_list.at(i).ls.merge(all_list.at(j).ls);
+            all_list.at(i).ls.sort();
+        }
+        if(cmd=="unique"){
+            int id;
+            cin>>id;
+            int i=find_id(id);
+            all_list.at(i).ls.unique();
+        }
+        if(cmd=="out"){
+            int id;
+            cin>>id;
+            int i=find_id(id);
+            all_list.at(i).print_out();
+        }
     }
+    
+    return 0;
 }
-void commandop(){
-    string cmd=cmds.front();
-    cmds.pop();
-    if(cmd=="new")
-}
+
+
