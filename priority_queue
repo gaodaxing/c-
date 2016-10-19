@@ -1,0 +1,49 @@
+#include <iostream>
+#include<set>
+#include<queue>
+using namespace std;
+bool is_prime(int num){
+    for(int i=2; i*i<=num;i++){
+        if(num%i==0)return false;
+    }
+    return true;
+}
+int count_prime(int num){
+    int count=0;
+    for(int i=2;i<=num/2;i++){
+        if(is_prime(i)&&num%i==0)
+            count++;
+    }
+    return count;
+}
+class Compare{
+public:
+bool operator()(const int &x, const int &y){
+    int px,py;
+    px=count_prime(x);
+    py=count_prime(y);
+    if(px!=py)return px<py;
+    return x<y;
+}
+};
+
+int main(){
+    set<int,Compare> pq;
+    
+    int n;
+    int a[10];
+    cin>>n;
+    while(n--){
+        for(int i=0;i<10;i++){
+            cin>>a[i];
+            pq.insert(a[i]);
+        }
+        int max=*pq.rbegin();
+        int min=*pq.begin();
+        cout<<*pq.rbegin()<<" "<<*pq.begin()<<endl;
+        pq.erase(max);
+        pq.erase(min);
+    }
+    
+    return 0;
+}
