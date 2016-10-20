@@ -1,0 +1,205 @@
+// ConsoleApplication6.cpp : Defines the entry point for the console application.
+//
+
+//#include"stdafx.h"
+
+#include<iostream>
+#include<string>
+#include<vector>
+#include<queue>
+#include <cstring>//memset函数头文件
+using namespace std;
+string *ss;
+int N;
+
+queue<string> cmds;
+void store_command(const char* ch);
+bool process();
+string commandop();
+vector<string> result;
+
+int my_stoi(const std::string nptr)
+{
+	int len = nptr.length();
+	int temp = 0;
+	for (int i = 0; i < len; i++) {
+		if (nptr[i] - '0' >= 0 || nptr[i] - '9' <= 0) {
+			temp = (temp * 10 + (nptr[i] - '0'));
+		}
+	}
+	return temp;
+}
+
+//将int 转成string  
+std::string my_itos(const int n)
+{
+	//std::cout << "start";  
+	if (n == 0) {
+		std::string temp = "0";
+		return temp;
+	}
+	std::string temp(100, '0');
+	int no = n, i;
+	for (i = 99; no >0; i--) {
+		temp[i] = (char)(no % 10 + '0');
+		no = no / 10;
+
+	}
+	//std::cout <<std::endl << temp << std::endl;  
+	temp.erase(0, i + 1);
+	return  temp;
+}
+
+
+string my_copy(int n, int x, int l);
+string my_add(string s1, string s2);
+int my_find(int n, string s);
+int my_rfind(int n, string s);
+void my_insert(int n, int x, string s);
+void my_reset(int n, string s);
+void my_print(int n);
+void my_printall();
+
+int main()
+{
+	
+	cin >> N;
+	ss=new string[N];	
+
+	for (int i = 0; i < N; i++) {
+		cin >> ss[i];
+	}
+	cin.get();
+	bool t;
+	char* ch = new char[501];
+	
+	while (true) {
+		cin.getline(ch, 500, '\n');
+		store_command(ch);
+		t = process();
+		if (t == false)break;
+	}
+	for (int i = 0; i < result.size(); i++) {
+		cout << result.at(i) << endl;
+	}
+    return 0;
+}
+
+
+void store_command(const char* ch) {
+	string str;
+	for (int i = 0; ch[i] != '\0'; i++) {
+		if (ch[i] != ' ')str.push_back(ch[i]);
+		else {
+			cmds.push(str);
+			str.clear();
+		}
+	}
+	cmds.push(str);
+}
+
+bool process() {
+	string cmd = cmds.front();
+	cmds.pop();
+	if (cmd == "insert") {
+		string s = commandop();
+		int n = my_stoi(commandop());
+		int x= my_stoi(commandop());		
+		my_insert(n, x, s);
+	}
+	else if (cmd == "reset"){
+		string s = commandop();
+		int n = my_stoi(commandop());
+		my_reset(n, s);
+	}
+	else if (cmd == "print") {
+		int n = my_stoi(commandop());
+		my_print(n);
+	}
+	else if (cmd == "printall") {
+		my_printall();
+	}
+	else if (cmd == "over")return false;
+	return true;
+}
+
+string commandop() {
+	string cmd = cmds.front();
+	cmds.pop();
+	if (cmd == "copy") {
+		int n = my_stoi(commandop());
+		int x = my_stoi(commandop());
+		int l = my_stoi(commandop());
+		return my_copy(n, x, l);
+	}
+	else if (cmd == "add") {
+		string s1 = commandop();
+		string s2 = commandop();
+		return my_add(s1, s2);
+	}
+	else if (cmd == "find") {
+		string s = commandop();
+		int n = my_stoi(commandop());
+		return my_itos(my_find(n, s));
+	}
+	else if (cmd == "rfind") {
+		string s = commandop();
+		int n = my_stoi(commandop());
+		return my_itos(my_rfind(n, s));
+	}
+	else return cmd;
+}
+string my_copy(int n, int x, int l) {
+	return ss[n-1].substr(x, l);
+}
+
+string my_add(string s1, string s2) {
+	for (int i = 0; i < s1.size(); i++) {
+		if (s1.at(i) < '0' || s1.at(i) > '9') {
+			return s1 + s2;
+		}
+	}
+	for (int i = 0; i < s2.size(); i++) {
+		if (s2.at(i) < '0' || s2.at(i) > '9') {
+			return s1 + s2;
+		}
+	}
+	
+	long a = my_stoi(s1);
+	long b = my_stoi(s2);
+	if(a>=0&&(a<=99999)&&(b>=0)&&(b<=99999))
+	return(my_itos(a + b));
+	else return s1 + s2;
+
+}
+
+int my_find(int n, string s) {
+	int pos=ss[n-1].find(s);
+	if (pos == string::npos)return s.size();
+	else return pos;
+}
+
+int my_rfind(int n, string s) {
+	int pos = ss[n - 1].rfind(s);
+	if (pos == string::npos)return s.size();
+	else return pos;
+}
+
+void my_insert(int n, int x, string s) {
+	ss[n - 1].insert(x, s);
+}
+
+void my_reset(int n, string s) {
+	ss[n - 1].swap(s);
+}
+
+void my_print(int n) {
+
+	result.push_back(ss[n - 1]);
+}
+
+void my_printall() {
+	for (int i = 0; i < N; i++) {
+		result.push_back(ss[i]);
+	}
+}
