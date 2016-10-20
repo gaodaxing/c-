@@ -1,0 +1,24 @@
+#include <iostream>
+#include<cmath>
+using namespace std;
+
+int main(int argc, const char * argv[]) {
+    int t;
+    cin>>t;
+    while(t--){
+        unsigned int n,i,j,rs=0,ni,nj,nil,njl;
+        cin>>n>>i>>j;
+        ni=n>>i;
+        nil=ni%2;
+        nj=n>>j;
+        njl=!(nj%2);
+        for(int c=i;c<j+1;c++){
+            if(c==i)rs=rs+pow(2,c)*nil;
+            else if(c==j)rs=rs+pow(2,c)*njl;
+            else rs=pow(2,c)+rs;
+        }
+        cout<<hex<<rs<<endl;
+        }
+    
+    return 0;
+}
