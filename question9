@@ -1,0 +1,67 @@
+//
+//  main.cpp
+//  people sort
+//
+//  Created by Daxing Gao on 16/10/20.
+//  Copyright © 2016年 Daxing Gao. All rights reserved.
+//
+
+#include <iostream>
+#include <set>
+#include <iterator>
+#include <algorithm>
+using namespace std;
+// 在此处补充你的代码
+class A{
+protected: char group;int age;
+public:
+    A(int a){age=a;group='A';}
+    A(int a,char g):age(a),group(g){}
+    char get_group(){
+        return group;
+    }
+    int get_age(){
+        return age;
+    }
+};
+
+class B:public A{
+public:
+    B(int a):A(a,'B'){}
+};
+
+class Comp{
+public:
+bool operator()(A* a1,A* a2){
+    return a1->get_age()<a2->get_age();
+}
+};
+
+void Print(A* a){
+        cout<<a->get_group()<<" "<<a->get_age()<<endl;
+}
+
+
+int main()
+{
+    
+    int t;
+    cin >> t;
+    set<A*,Comp> ct;
+    while( t -- ) {
+        int n;
+        cin >> n;
+        ct.clear();
+        for( int i = 0;i < n; ++i)	{
+            char c; int k;
+            cin >> c >> k;
+            
+            if( c == 'A')
+                ct.insert(new A(k));
+            else
+                ct.insert(new B(k));
+        }
+        for_each(ct.begin(),ct.end(),Print);
+        cout << "****" << endl;
+    }
+}
